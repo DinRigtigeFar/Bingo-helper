@@ -7,10 +7,8 @@ import os
 import cv2
 import re
 
-#def picFolderImport(folderToImport):
-    #"""Function that takes a folder of photos as input and outputs
-    #the pictures so they're ready for OCR"""
-    # Create arguments for my program
+
+# Create arguments for my program
 ap = argparse.ArgumentParser()
 # Adding an image to be read argument
 ap.add_argument("-f", "--folder", required=True, help="path to input folder with images to be processed")
