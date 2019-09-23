@@ -21,7 +21,7 @@ for img in os.listdir(args["folder"]):
     # load the image as a PIL/Pillow image, apply OCR, and then delete
     # the temporary file
     try:
-        text = pytesseract.image_to_string(Image.open(args["folder"] + "/" + img), config='digits, -psm 1000')
+        text = pytesseract.image_to_string(Image.open(args["folder"] + "/" + img), config='digits, -psm 3, --oem 1')
     except OSError:
         continue
     # Make 1 list with items split by newline
@@ -66,6 +66,3 @@ while True:
                 card[key].remove(current_number)
             if len(card[key]) == 0:
                 print(f"Bingo on {key} in {card_list.index(card)+1}")
-
-
-
