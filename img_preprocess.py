@@ -6,7 +6,6 @@ import os
 import cv2
 import re
 
-
 # Create arguments for my program
 ap = argparse.ArgumentParser()
 # Adding an image to be read argument
@@ -61,7 +60,6 @@ for img in os.listdir(args["folder"]):
 
     # Write the grayscale image to disk as a temporary file so we can
     # apply OCR to it
-
     filename = f"{format(os.getpid()+check)}.png"
     check += 1
     cv2.imwrite(path + "/" + filename, gray)
