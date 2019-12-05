@@ -14,7 +14,7 @@ ap.add_argument("-f", "--folder", required=True, help="path to input folder with
 ap.add_argument("-p", "--preprocess", type=str, default="thresh", help="type of preprocessing to be done")
 args = vars(ap.parse_args())
 
-# Bump the filename by 1
+# Bump the output filename by 1
 check = 0
 
 # Path to new folder for storing processed images

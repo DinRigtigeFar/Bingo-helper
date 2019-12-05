@@ -44,7 +44,7 @@ for img in os.listdir(args["folder"]):
     card = {"line1": pre_card[0:5], "line2": pre_card[5:10], "line3": pre_card[10:]}
 
     # Verbose statement
-    if args["verbose"] != False:
+    if args["verbose"]:
         print(f"This is your bingo card no. {check}: {card}")
         check += 1
 
