@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-from PIL import Image
 import argparse
 import os
-import cv2
 import re
+
+import cv2
+from PIL import Image
 
 # Create arguments for my program
 ap = argparse.ArgumentParser()
@@ -24,7 +25,7 @@ path = args["folder"] + "/" + "processed_pics"
 try:
     os.mkdir(path)
 except OSError:
-    print(f"Creation of folder {path} failed")
+    print(f"Creation of folder {path} failed. It probably already exists.")
 else:
     print(f"Folder created at {path}")
 

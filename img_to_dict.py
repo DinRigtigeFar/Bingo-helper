@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-import pytesseract
-from PIL import Image
 import argparse
 import os
 import re
+
+import pytesseract
+from PIL import Image
 
 ap = argparse.ArgumentParser()
 # Adding an image to be read argument
