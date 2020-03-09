@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import argparse
 import os
 import re
@@ -10,9 +8,11 @@ from PIL import Image
 # Create arguments for my program
 ap = argparse.ArgumentParser()
 # Adding an image to be read argument
-ap.add_argument("-f", "--folder", required=True, help="path to input folder with images to be processed")
+ap.add_argument("-f", "--folder", required=True,
+                help="path to input folder with images to be processed")
 # Adding an optional process argument. The default is threshold
-ap.add_argument("-p", "--preprocess", type=str, default="thresh", help="type of preprocessing to be done")
+ap.add_argument("-p", "--preprocess", type=str, default="thresh",
+                help="type of preprocessing to be done")
 args = vars(ap.parse_args())
 
 # Bump the output filename by 1
@@ -41,7 +41,8 @@ for img in os.listdir(args["folder"]):
     # Check to see if we should apply thresholding to preprocess the
     # image
     if args["preprocess"] == "thresh":
-        gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        gray = cv2.threshold(
+            gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
     # Make a check to see if median blurring should be done to remove
     # noise
@@ -51,7 +52,7 @@ for img in os.listdir(args["folder"]):
         gray = cv2.medianBlur(gray, 3)
     elif args["preprocess"] == "blur5":
         gray = cv2.medianBlur(gray, 5)
-    elif  args["preprocess"] == "blur9":
+    elif args["preprocess"] == "blur9":
         gray = cv2.medianBlur(gray, 9)
 
     # TODO: Tweak the blurring
@@ -65,4 +66,4 @@ for img in os.listdir(args["folder"]):
     check += 1
     cv2.imwrite(path + "/" + filename, gray)
 
-# TODO: Make "every" read photo OCR'able
+# TODO: The above doesn't seem to work properly when using pytesseract on them.
