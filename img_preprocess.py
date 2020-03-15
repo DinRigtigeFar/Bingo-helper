@@ -19,7 +19,7 @@ args = vars(ap.parse_args())
 check = 0
 
 # Path to new folder for storing processed images
-path = args["folder"] + "/" + "processed_pics"
+path = os.path.join(args["folder"],"processed_pics")
 
 # Create directory to put processed images in
 try:
@@ -64,6 +64,6 @@ for img in os.listdir(args["folder"]):
     # apply OCR to it
     filename = f"{format(os.getpid()+check)}.png"
     check += 1
-    cv2.imwrite(path + "/" + filename, gray)
+    cv2.imwrite(os.path.join(path, filename), gray)
 
 # TODO: The above doesn't seem to work properly when using pytesseract on them.
