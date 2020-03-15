@@ -30,10 +30,10 @@ Parameters to input:
 <br>
 txt_to_card.py a program that parses a txt file containing raw bingo cards.
 The format of that file should be: <br>
-3 lines of 5 space delimited numbers followed by an empty line for as many lines as you want (see cards.txt).
+3 lines of 5 space delimited numbers followed by an empty line for as many lines as you want (see cards.txt). <br>
 Use the make_cards function to turn the raw txt file into a list of lists containg the basic cards.
-Then use list comprehension to turn all of these basic cards into a BingoCard object.
-You can view your cards by calling name_of_card.card
-Use the function pop_list to easily pop numbers from your cards if they contain them.
-Look at the terminal because it will tell you in which cards you had the number and if you're lucky it will automatically tell you if you have bingo.
+Then use list comprehension to turn all of these basic cards into a BingoCard object. <br>
+You can view your cards by calling name_of_card.card <br>
+Use the function pop_list to easily pop numbers from your cards if they contain them. <br>
+Look at the terminal because it will tell you in which cards you had the number and if you're lucky it will automatically tell you if you have bingo. <br>
 When the current line (when one line has been filled/poppep) is done use next_line(number) to set the empty lines required for bingo.
