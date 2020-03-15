@@ -9,7 +9,8 @@ python = "^3.7"
 pytesseract = "^0.3.2"
 Pillow = "^7.0.0"
 autopep8 = "^1.5"
-jupyter = "^1.0.0"
+flask = "^1.1.1"
+Flask-Babel = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 
