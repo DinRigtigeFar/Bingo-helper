@@ -4,6 +4,7 @@ import re
 
 import pytesseract
 from PIL import Image
+from txt_to_card import BingoCard
 
 ap = argparse.ArgumentParser()
 # Adding an image to be read argument
@@ -50,4 +51,4 @@ for img in os.listdir(args["folder"]):
         print(f"This is your bingo card no. {check}: {card}")
         check += 1
 
-    card_list.append(card)
+    card_list.append(BingoCard(card))
