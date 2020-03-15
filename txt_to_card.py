@@ -1,10 +1,10 @@
 
-def make_cards(list_of_text):
+def make_cards_from_file(file_of_text):
     """
     A funciton to create bingo cards from text
     """
 
-    with open(list_of_text, "r") as f:
+    with open(file_of_text, "r") as f:
         parsed = [k.strip() for k in f.readlines()]
 
     card = []
@@ -21,12 +21,31 @@ def make_cards(list_of_text):
     return cards
 
 
+def make_cards_from_list(list_of_text):
+    """
+    A funciton to create bingo cards from text
+    """
+    parsed = [k.strip() for k in list_of_text.split("\n")]
+    card = []
+    cards = []
+    for line in parsed:
+        if len(line) == 0:
+            card = []
+            continue
+        card_line = [int(i) for i in line.split(" ")]
+        card.append(card_line)
+        if len(card) == 3:
+            cards.append(card)
+
+    return cards
+
+
 class BingoCard:
     """
-    A bingo card class
+    A bingo card class.
     """
 
-    def __init__(self, card_list):
+    def __init__(self, card_list, current_line=1):
         self.row1 = card_list[0]
         self.row2 = card_list[1]
         self.row3 = card_list[2]
@@ -37,6 +56,7 @@ class BingoCard:
             "row2": self.row2,
             "row3": self.row3
         }
+        self.lines = current_line
 
     def pop_number(self, number):
         """
@@ -47,34 +67,24 @@ class BingoCard:
         for row, value in self.card.items():
             if number in value:
                 # Use list.index(element) to fetch the index of the number and pop it from the list
-                you_had = f"You had {value.pop(value.index(number))}"
-                if self.check_bingo():
+                you_had = f"You had {value.pop(value.index(number))} in {row}"
+
+                if self.check_bingo() != False:
                     rows = self.check_bingo()
-                    return f"You have bingo on row(s) {rows}. Last number was {you_had}"
+                    return f"You have bingo on row(s) {rows}. Last number was {you_had[8:]}"
                 return you_had
                 # Use list.remove(element) instead
                 # value.remove(number)
 
-        return f"You didn't have {number}"
+        return None
 
         if self.check_bingo():
             rows = self.check_bingo()
-            print(f"You have bingo on row(s) {rows}")
-
-    def lines(self, lines=1):
-        """
-        What line of bingo are we on: 1, 2 or 3.
-
-        """
-        self.lines = lines
-
-        return self.lines
 
     def check_bingo(self):
         """
         Do I have bingo on the current line?
         """
-
         cleared_rows = 0
         row_number = []
 
@@ -89,40 +99,27 @@ class BingoCard:
             return False
 
 
-mine_plader = make_cards("cards.txt")
-my_cards = [BingoCard(i) for i in mine_plader]
+class BingoCardDict(BingoCard):
+    """
+    A bingo card class to create a bingo card from a dict rather than from raw list.
+    Otherwise the same as the regular BingoCard class.
+    """
+
+    def __init__(self, card_dict, current_line=1):
+        # This is your bingo card
+        self.card = card_dict
+        self.lines = current_line
 
 
-def pop_list(number, one_index=1, list_of_BingoCard_objects=my_cards):
+def pop_list(number, list_of_BingoCard_objects, one_index=1):
     """
     Use to keep track of bingo cards when you have many.
-    Ordered by the given list. Set one_index to 1 to get 1 index instead of 0.
+    Ordered by the given list. Set one_index to 0 to get 0 index instead of 1.
     """
-    for idx, card in enumerate(list_of_BingoCard_objects):
-        print(f"{card.pop_number(number)} in card {idx+one_index}")
-
-def next_line(number, list_of_BingoCard_objects=my_cards):
-    """
-    Put the number of the current line (a bingo round)
-    """
-    for i in list_of_BingoCard_objects:
-        i.lines(number)
-
-
-for i in my_cards:
-    print(i.card)
-
-pop_list(11)
-pop_list(2)
-pop_list(22)
-pop_list(33)
-next_line(2)
-pop_list(44)
-for i in my_cards:
-    print(i.card)
-
-pop_list(15)
-pop_list(38)
-pop_list(51)
-pop_list(88)
-pop_list(90)
+    # List comp to do the operations
+    # It's annoying to be told that a number isn't in your card so we check if it's None before returning the f-string
+    pop_values = [card.pop_number(number)
+                  for card in list_of_BingoCard_objects]
+    removed_numbers = [f"{i} in card {idx+one_index}" for idx,
+                       i in enumerate(pop_values) if i != None]
+    return removed_numbers
