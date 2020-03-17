@@ -7,10 +7,10 @@ All you have to do is type a number in the terminal and if that number is in one
 
 ### Installation
 ```
-git clone https://github.com/DinRigtigeFar/Bingo_reader.git
-cd Bingo_reader
+git clone https://github.com/DinRigtigeFar/Bingo-helper.git
+cd Bingo-helper
 python3 -m venv bingo_helper
-source bingo_helper/bin/activate
+. bingo_helper/bin/activate
 pip install -r requirements.txt
 python bingo_app.py
 ```
