@@ -1,8 +1,3 @@
-"""
-A test vesion of txt_to_card.py with added features and some optimizations, but maybe not entirely bug free. Use at own risk.
-"""
-
-
 def make_cards_from_file(file_of_text):
     """
     A funciton to create bingo cards from a text file.
