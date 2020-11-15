@@ -1,0 +1,64 @@
+<!Doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="../static/style.css" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Bingo helper</title>
+    </head>
+    <body>
+    {% if current_line %}
+        <h2>{{current_line}}</h2>
+    {% endif %}
+    <h1>{{ gettext("Let's play some bingo!") }}</h1>
+    <h4><p>{{ gettext("Current line is") }} {{sesh}}</p></h4>
+    <p>{{ gettext("Press the button that corresponds to the drawn number:") }}</p>
+    <!-- Create a grid of all bingo numbers -->
+    <div class="row">
+        <div class="column70">
+            <div class="grid-container">
+                {% for i in range(1,91) %}
+                    <a href="/grid/{{i}}" class="btn-group button"><button class="block">{{i}}</button></a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="column30">
+            <p>{{ gettext("These are the drawn numbers:") }}</p>
+            <p>{{drawn_numbers}}</p>
+        </div>
+    </div>
+    <div class="outer">
+        {% if missing %}
+            <h3>Missing one for bingo:</h3>
+            {% for i in missing %}
+                {{i}} <br>
+            {% endfor %}
+        {% endif %}
+    </div>
+    </body>
+    <br>
+    <div class="outer">
+        <h3>What happened on the last draw:</h3>
+        {% if message %}
+            {% for i in message %}
+                {{i}} <br>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <br>
+    <br>
+    <br>
+    <p>
+        <body>
+            {{ gettext("What line are we on?") }}
+            <div class="grid-container">
+                {% for i in range(2) %}
+                <a href="/newline/{{i+2}}" class="btn-group button"><button type="button" class="block" value="{{i+2}}">{{i+2}}</button></a>
+                {% endfor %}
+            </div>
+        </body>
+    <p>
+    
+</html>
+
