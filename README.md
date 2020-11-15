@@ -6,7 +6,7 @@ The interface is a webapp running on 127.0.0.1:5000. The interface is very simpl
 
 ### Installation
 ```
-git clone https://github.com/DinRigtigeFar/Bingo_reader.git
+git clone https://github.com/DinRigtigeFar/Bingo-helper.git
 cd Bingo_reader
 conda create --name bingo --file requirements.txt
 python bingo_app.py
