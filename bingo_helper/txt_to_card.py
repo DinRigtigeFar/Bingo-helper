@@ -1,38 +1,25 @@
-def make_cards_from_file(file_of_text):
-    """
-    A funciton to create bingo cards from a text file.
-    Format should be (in the file):
-    no no no no no
-    no no no no no
-    no no no no no
+"""
+Parse raw bingo cards into actual ones used for bingo
+"""
+from typing import List, Union, Tuple
+from os import path
 
+def make_cards(file_or_text: str)-> List[list]:
+    """
+    A function to create bingo cards.
+    Format should be:\n
+    no no no no no\n
+    no no no no no\n
+    no no no no no\n
+    \n
     no...
     """
+    if path.isfile(file_or_text):
+        with open(file_or_text, "r") as f:
+            parsed = [k.strip() for k in f.readlines()]
+    else:
+        parsed = [k.strip() for k in file_or_text.split("\n")]
 
-    with open(file_of_text, "r") as f:
-        parsed = [k.strip() for k in f.readlines()]
-
-    card = []
-    cards = []
-    for line in parsed:
-        if len(line) == 0:
-            card = []
-            # continue means start over
-            continue
-        card_line = [int(i) for i in line.split(" ")]
-        card.append(card_line)
-        if len(card) == 3:
-            cards.append(card)
-
-    return cards
-
-
-def make_cards_from_list(list_of_text):
-    """
-    A funciton to create bingo cards from plain text.
-    Format same as 'make_cards_from_file'
-    """
-    parsed = [k.strip() for k in list_of_text.split("\n")]
     card = []
     cards = []
     for line in parsed:
@@ -43,6 +30,7 @@ def make_cards_from_list(list_of_text):
         card.append(card_line)
         if len(card) == 3:
             cards.append(card)
+            card = []
 
     return cards
 
@@ -68,31 +56,31 @@ class BingoCard:
         }
         self.lines = current_line
 
-    def pop_number(self, number):
+    def pop_number(self, number: int) -> Union[Tuple[str, list], None]:
         """
-        Remove a number from a row if it's there.
-        Akin to putting a piece on top of a number in 'real' bingo.
+        Remove a number from a row if it's there.\n
+        Akin to putting a piece on top of a number in 'real' bingo.\n
         Order: Check if number in card, check if missing one number for bingo, check if bingo (return bingo), else return number and row else return None (number not in card)
         """
+        all_rows = {'row 1', 'row 2', 'row 3'}
         # Iterate over key value pairs in card dict
         for row, value in self.card.items():
             if number in value:
                 # Use list.index(element) to fetch the index of the number and pop it from the list
                 called_number = value.pop(value.index(number))
-                you_had = f"You had {called_number} in {row}"
+                you_had = f"{called_number} was in {row}"
                 # Check bingo (del row if bingo) always before close_to_bingo (uses amount of rows to check)
-                bingo_rows = self.check_bingo()
-                i_has_bingo = self.close_to_bingo()
-                if bingo_rows != False:
-                    if self.lines == 1:
-                        return f"!!!!!!!!!!!!!!You have bingo on one row!!!! Last number was {called_number} in row {bingo_rows[0][4]}", i_has_bingo
-                    elif self.lines == 2:
-                        return f"!!!!!!!!!!!!!!You have bingo on two rows!!!! Last number was {called_number} in row {bingo_rows[0][4]}", i_has_bingo
+                cleared_row = self.check_bingo()
+                missing_one = self.close_to_bingo()
+                if cleared_row != False:
+                    bingo_rows = [i for i in all_rows if i not in self.card.keys()]
+                    if self.lines in (1, 2):
+                        return f"You have bingo on: {', '.join(i for i in bingo_rows)}", missing_one
                     else:
-                        return f"!!!!!!!!!!!!!!You have the whole card full!!!! Last number was {called_number} in row {bingo_rows[0][4]}", i_has_bingo
+                        return f"You have bingo on all of", missing_one
 
-                # TODO: Maybe change "you_had" into the values so they are easier to modify for presentation. i_has_bingo is a dict of row and missing number for bingo
-                return you_had, i_has_bingo
+                # TODO: Maybe change "you_had" into the values so they are easier to modify for presentation. missing_one is a dict of row and missing number for bingo
+                return you_had, missing_one
 
         return None
 
@@ -114,7 +102,7 @@ class BingoCard:
             cleared_rows, row_number = self.aux_remove_row()
             cleared_rows = 0
 
-        return row_number if cleared_rows == 1 else False
+        return row_number[0] if cleared_rows == 1 else False
 
     def close_to_bingo(self):
         """
@@ -175,19 +163,16 @@ class BingoCardDict(BingoCard):
         self.lines = current_line
 
 
-def pop_list(number, list_of_BingoCard_objects, one_index=1):
+def pop_list(number: int, list_of_BingoCard_objects: list, one_index: int = 1) -> Tuple[List[str], List[str]]:
     """
     Use to keep track of bingo cards when you have many.
     Ordered by the given list. Set one_index to 0 to get 0 index instead of 1.
     """
-    # List comp to do the operations
-    # It's annoying to be told that a number isn't in your card so we check if it's None before returning the f-string
-    pop_values = [card.pop_number(number)
-                  for card in list_of_BingoCard_objects]
-    removed_numbers = [f"{i[0]} in card {idx+one_index}" for idx,
-                       i in enumerate(pop_values) if i != None]
-    # TODO: Unpack the i[1] list inside string
-    missing = [f"Missing {i[1]} in card {idx+one_index} for bingo" for idx,
+    # Try to pop values and return only the cards with popped values
+    pop_values = [card.pop_number(number) for card in list_of_BingoCard_objects]
+    removed_numbers = [f"{i[0]} {'' if i[0].endswith('all of') else 'in'} card {idx+one_index}" for idx, i in enumerate(pop_values) if i != None]
+    
+    missing = [f"Missing {', '.join(str(k) for k in i[1])} in card {idx+one_index} for bingo" for idx,
                i in enumerate(pop_values) if i != None and i[1] != None]
 
     return removed_numbers, missing

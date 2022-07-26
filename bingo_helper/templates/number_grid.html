@@ -42,7 +42,12 @@
         <h3>What happened on the last draw:</h3>
         {% if message %}
             {% for i in message %}
-                {{i}} <br>
+                {% if i[0]=="Y" %}
+                    <h1>{{i}}</h1>
+                {% else %}
+                    {{i}}
+                {% endif %}
+                <br>
             {% endfor %}
         {% endif %}
     </div>
@@ -53,8 +58,8 @@
         <body>
             {{ gettext("What line are we on?") }}
             <div class="grid-container">
-                {% for i in range(2) %}
-                <a href="/newline/{{i+2}}" class="btn-group button"><button type="button" class="block" value="{{i+2}}">{{i+2}}</button></a>
+                {% for i in range(1,4) %}
+                <a href="/newline/{{i}}" class="btn-group button"><button type="button" class="block" value="{{i}}">{{i}}</button></a>
                 {% endfor %}
             </div>
         </body>

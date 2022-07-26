@@ -32,14 +32,16 @@ def grid():
     if request.method == 'POST':
         # This is generated from the index.html form
         raw_cards = request.form['raw_cards']
+        if not raw_cards:
+            return render_template('index.html', message='You should input some cards!')
         # Parse the raw string into bingo cards
-        my_pre_cards = txt_to_card.make_cards_from_list(raw_cards)
+        my_pre_cards = txt_to_card.make_cards(raw_cards)
         my_cards = [txt_to_card.BingoCard(i) for i in my_pre_cards]
         # Since we need the cards in the other views we create a session
         session['my_cards'] = [i.card for i in my_cards]
         # Also initialize a current_line session to be used for assembly later
-        session['current_line'] = 1
-    return render_template('number_grid.html', message=session.get('my_cards'))
+        session['current_line'] = my_cards[0].lines
+    return render_template('number_grid.html', message=session.get('my_cards'), sesh=session.get('current_line'))
 
 
 @app.route('/grid/<int:number>', methods=['GET'])
@@ -48,7 +50,8 @@ def btn_click(number):
     Do card.pop_number(number) on button click
     """
     # Have a list of already drawn numbers to keep track
-    session['drawn_numbers'].insert(0, number)
+    if number not in session.get('drawn_numbers'):
+        session['drawn_numbers'].insert(0, number)
     # Make the drawn numbers sorted insted? Uncomment this
     #session['drawn_numbers'].sort()
     current_line = session.get('current_line')
@@ -61,7 +64,7 @@ def btn_click(number):
     # Now we 'disassemble' the BingoCardDict object into a dict and override the session with the updated cards
     session['my_cards'] = [i.card for i in my_cards]
 
-    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=session.get('drawn_numbers'))
+    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=', '.join(str(i) for i in session.get('drawn_numbers')))
 
 
 @app.route('/newline/<int:number>', methods=['GET'])
