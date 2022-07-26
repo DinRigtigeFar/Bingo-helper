@@ -1,0 +1,7 @@
+name: bingo_env
+channels:
+  - defaults
+dependencies:
+  - pytest
+  - flask
+  - flask-babel
