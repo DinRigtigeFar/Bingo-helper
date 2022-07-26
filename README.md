@@ -6,8 +6,8 @@ The interface is a webapp running on 127.0.0.1:5000. The interface is very simpl
 
 ### Installation
 ```
-git clone https://github.com/DinRigtigeFar/Bingo_reader.git
-cd Bingo_reader
+git clone https://github.com/DinRigtigeFar/Bingo-helper.git
+cd bingo_helper
 conda env create --file bingo_env.yml
 python bingo_app.py
 ```
@@ -15,8 +15,8 @@ Then fire up your browser of choice and point it to [the webapp](127.0.0.1:5000)
 
 ### How it works: <br>
 bingo_app.py is a fully functioning webbased bingo card GUI created in flask. <br>
-It takes raw text in the format of a bingo card (see [cards.txt](https://github.com/DinRigtigeFar/Bingo_reader/blob/master/cards.txt) for the format), parses it and returns a bingo card object.
-<br>-
+It takes raw text in the format of a bingo card (see [cards.txt](https://github.com/DinRigtigeFar/Bingo-helper/blob/21a4f6d7cde5bd8999b9547fcd66a7d5dc3065cb/bingo_helper/cards.txt) for the format), parses it and returns a bingo card object.
+<br>
 The page you're then redirected to is pretty self explanatory: Just press the called number!
 <br>
 The program will automatically check if you have it in your card(s) and display which row and card contained the called number. When you are one number away from having bingo, the program will tell you what number and which card it is in. Then you know exactly what to listen for. If you're lucky enough to get bingo then that will of course be displayed too.
