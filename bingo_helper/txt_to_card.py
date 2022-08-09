@@ -3,6 +3,7 @@ Parse raw bingo cards into actual ones used for bingo
 """
 from typing import List, Union, Tuple
 from os import path
+import json
 
 def make_cards(file_or_text: str)-> List[list]:
     """
@@ -14,6 +15,7 @@ def make_cards(file_or_text: str)-> List[list]:
     \n
     no...
     """
+    # return path.isfile(file_or_text)
     if path.isfile(file_or_text):
         with open(file_or_text, "r") as f:
             parsed = [k.strip() for k in f.readlines()]
@@ -40,7 +42,7 @@ class BingoCard:
     A bingo card class.
     """
 
-    def __init__(self, card_list, current_line=1):
+    def __init__(self, card_list: list, current_line: int = 1):
         """
         Take a list of raw cards and make a bingo card object.
         """
@@ -55,14 +57,17 @@ class BingoCard:
             "row 3": self.row3
         }
         self.lines = current_line
+    
+    def __repr__(self):
+        return json.dumps(self.card)
 
-    def pop_number(self, number: int) -> Union[Tuple[str, list], None]:
+    def pop_number(self, number: int) -> Union[Tuple[str, Union[List[int], None]], None]:
         """
         Remove a number from a row if it's there.\n
         Akin to putting a piece on top of a number in 'real' bingo.\n
         Order: Check if number in card, check if missing one number for bingo, check if bingo (return bingo), else return number and row else return None (number not in card)
         """
-        all_rows = {'row 1', 'row 2', 'row 3'}
+        all_rows = ('row 1', 'row 2', 'row 3')
         # Iterate over key value pairs in card dict
         for row, value in self.card.items():
             if number in value:
@@ -84,80 +89,61 @@ class BingoCard:
 
         return None
 
-    def check_bingo(self):
+    def check_bingo(self) -> bool:
         """
         Do I have bingo on the current line?
-        Delete key if bingo (makes it easier to check for close to bingo)
-        row_number will never be anything else than 0 or 1 since any number can only appear on the same card once!
+        Delete key if bingo
+        row_number is bool
         """
-        # All rows stil present = no bingo yet = self.lines == 1
-        if len(self.card.items()) == 3 and self.lines == 1:
-            cleared_rows, row_number = self.aux_remove_row()
-        # One row has been removed due to it being full
-        elif len(self.card.items()) == 2 and self.lines == 2:
-            cleared_rows, row_number = self.aux_remove_row()
-        elif len(self.card.items()) == 1 and self.lines == 3:
-            cleared_rows, row_number = self.aux_remove_row()
+        # If rows left in card + lines (how many rows for bingo) == 4 (3+1; 2+2; 1+3)
+        if len(self.card.keys()) + self.lines == 4:
+            row_number = self.aux_remove_row()
+            return row_number
         else:
-            cleared_rows, row_number = self.aux_remove_row()
-            cleared_rows = 0
+            self.aux_remove_row()
+            return False
 
-        return row_number[0] if cleared_rows == 1 else False
-
-    def close_to_bingo(self):
+    def close_to_bingo(self) -> Union[List[int], None]:
         """
-        Function to check whether you're missing one number for bingo.
+        Check whether you're missing one number for bingo.
         """
-
         missing_nums = []
-        rows_left = len(self.card.items())
-        # One from one row
-        if rows_left == 3 and self.lines == 1:
-            for row, value in self.card.items():
+        # If rows left in card + lines (how many rows for bingo (1, 2 or 3)) == 4 (3+1; 2+2; 1+3)
+        if len(self.card.keys()) + self.lines == 4:
+            for value in self.card.values():
                 if len(value) == 1:
                     # Append the only number in the row and do so for all rows in card
                     missing_nums.append(value[0])
-        # One from two rows
-        elif rows_left == 2 and self.lines == 2:
-            for row, value in self.card.items():
-                if len(value) == 1:
-                    # Append the only number in the row and do so for all rows in card
-                    missing_nums.append(value[0])
-        # One from whole card
-        elif rows_left == 1 and self.lines == 3:
-            for row, value in self.card.items():
-                if len(value) == 1:
-                    # Append the only number in the row
-                    missing_nums.append(value[0])
 
-        return missing_nums if len(missing_nums) != 0 else None
+        return missing_nums if missing_nums else None
 
-    def aux_remove_row(self):
+    def aux_remove_row(self) -> Union[bool, int]:
         """
-        Aux function to remove row from card (used in check bingo)
-        Delete key if bingo (makes it easier to check for close_to_bingo)
+        Aux function to remove row from card (used in check bingo)\n
+        Delete key if we have bingo
         """
-        cleared_rows = 0
-        row_number = []
+        row_number = False
         for row, value in self.card.items():
-            # If no values == bingo
+            # Remove the row if no values in it and return the row number
             if len(value) == 0:
-                cleared_rows += 1
-                row_number.append(row)
-                # Remove 0 val line from dict
+                row_number = True
                 self.card.pop(row)
+                # Useless to continue since a number can only appear once in a card
                 break
-        # Only return the variables if they aren't 0 and empty
-        return cleared_rows, row_number if cleared_rows and row_number else False
+        # Return False or int
+        return row_number
 
 
 class BingoCardDict(BingoCard):
     """
-    A bingo card class to create a bingo card from a dict rather than from raw list.
+    A bingo card class to create a bingo card from a dict rather than from raw list.\n
     Otherwise the same as the regular BingoCard class.
     """
 
-    def __init__(self, card_dict, current_line=1):
+    def __init__(self, card_dict: dict, current_line: int = 1):
+        """
+        Takes a dict and current row and creates a bingo card
+        """
         # This is your bingo card
         self.card = card_dict
         self.lines = current_line
