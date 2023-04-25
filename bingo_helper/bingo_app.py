@@ -61,7 +61,7 @@ def btn_click(number):
     # Now we 'disassemble' the BingoCardDict object into a dict and override the session with the updated cards
     session['my_cards'] = my_cards.get_card()
 
-    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=session.get('drawn_numbers'))
+    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=session.get('drawn_numbers'), check_close=my_cards.close_to_bingo(combine=True))
 
 
 @app.route('/newline/<int:number>', methods=['GET'])

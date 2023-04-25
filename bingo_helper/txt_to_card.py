@@ -1,9 +1,11 @@
 """
 Parse raw bingo cards into actual ones used for bingo
 """
-from typing import List, Union, Tuple
-from os import path
 import json
+from collections import defaultdict
+from os import path
+from typing import List, Tuple, Union
+
 
 def make_cards(file_or_text: str)-> List[list]:
     """
@@ -223,7 +225,7 @@ class BigBingoHolder:
 
         return removed_numbers, missing
 
-    def close_to_bingo(self, include_row: bool = False) -> List[dict]:
+    def close_to_bingo(self, include_row: bool = False, combine: bool = False) -> List[dict]:
         """
         Returns a list of dictionaries where key is the card number and value is either list (if include_row == False)\n
         or dict of list with key equal to the row which is close to bingo
@@ -232,7 +234,16 @@ class BigBingoHolder:
         for idx, i in enumerate(self.cards_list):
             tmp = i.close_to_bingo(include_row)
             if tmp is not None:
-                close_list.append({idx+1:tmp}) 
+                close_list.append({idx+1:tmp})
+        # [{1: [5]}, {2: [82]}, {8: [34]}, {9: [17]}, {15: [10]}, {16: [76, 16]}, {17: [87]}, {18: [16]}, {19: [8]}, {20: [90]}, {22: [4]}, {24: [17]}]
+        if combine:
+            combine_dict = defaultdict(list)
+            for i in close_list:
+                for key, value in i.items(): # key is card number and val is missing for bingo
+                    for val in value:
+                        combine_dict[val].append(key)
+            print(dict(sorted(combine_dict.items())))
+            return dict(sorted(combine_dict.items()))
         return close_list
     
     def get_card(self, card_no: int = 0) -> BingoCard:

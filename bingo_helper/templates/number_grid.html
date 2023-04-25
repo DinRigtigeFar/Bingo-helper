@@ -32,6 +32,17 @@
             <p>{{ drawn_numbers|join(', ') }}</p>
         </div>
     </div>
+    <div class="row">
+        <h3 style="white-space: pre-line">Missing number for bingo:</h3>
+    </div>
+    <div class="row">
+        {% if check_close %}
+            {% for key, val in check_close.items() %}
+                {{key}} in card(s) {{val|join(', ')}}
+                <br>
+            {% endfor %}
+        {% endif %}
+    </div>
     <div class="outer">
         {% if missing %}
             <h3>Missing one for bingo:</h3>
