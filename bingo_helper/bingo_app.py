@@ -39,7 +39,7 @@ def grid():
         session['my_cards'] = my_cards.get_card()
         # Also initialize a current_line session to be used for assembly later
         session['current_line'] = my_cards.lines
-    return render_template('number_grid.html', message=session.get('my_cards'), sesh=session.get('current_line'))
+    return render_template('number_grid.html', message=session.get('my_cards'), sesh=session.get('current_line'), drawn_numbers=session.get('drawn_numbers'))
 
 
 @app.route('/grid/<int:number>', methods=['GET'])
@@ -61,7 +61,7 @@ def btn_click(number):
     # Now we 'disassemble' the BingoCardDict object into a dict and override the session with the updated cards
     session['my_cards'] = my_cards.get_card()
 
-    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=', '.join(str(i) for i in session.get('drawn_numbers')))
+    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=session.get('drawn_numbers'))
 
 
 @app.route('/newline/<int:number>', methods=['GET'])
@@ -77,7 +77,7 @@ def change_line(number):
 
     # Render the number_grid template, but the message is different.
     # This way when you click a number the btn_click view is called again.
-    return render_template('number_grid.html', current_line=f"{line} {number}", sesh=number, drawn_numbers=', '.join(str(i) for i in session.get('drawn_numbers')))
+    return render_template('number_grid.html', current_line=f"{line} {number}", sesh=number, drawn_numbers=session.get('drawn_numbers'))
 
 
 if __name__ == '__main__':
