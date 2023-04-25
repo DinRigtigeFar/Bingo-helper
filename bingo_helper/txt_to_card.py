@@ -61,6 +61,10 @@ class BingoCard:
     def __repr__(self):
         return json.dumps(self.card)
 
+    def set_current_line(self, line: int):
+        if line in range(1,4):
+            self.lines = line
+
     def pop_number(self, number: int) -> Union[Tuple[str, Union[List[int], None]], None]:
         """
         Remove a number from a row if it's there.\n
@@ -73,7 +77,7 @@ class BingoCard:
             if number in value:
                 # Use list.index(element) to fetch the index of the number and pop it from the list
                 called_number = value.pop(value.index(number))
-                you_had = f"{called_number} was in {row}"
+                you_had = f"{called_number} was in {row}" # TODO: Change to tuple of (row, number)
                 # Check bingo (del row if bingo) always before close_to_bingo (uses amount of rows to check)
                 cleared_row = self.check_bingo()
                 missing_one = self.close_to_bingo()
@@ -84,7 +88,7 @@ class BingoCard:
                     else:
                         return f"You have bingo on all of", missing_one
 
-                # TODO: Maybe change "you_had" into the values so they are easier to modify for presentation. missing_one is a dict of row and missing number for bingo
+                # TODO: Maybe change "you_had" into the values so they are easier to modify for presentation. missing_one is a dict of row and missing number for bingo or None is none missing
                 return you_had, missing_one
 
         return None
@@ -103,17 +107,21 @@ class BingoCard:
             self.aux_remove_row()
             return False
 
-    def close_to_bingo(self) -> Union[List[int], None]:
+    def close_to_bingo(self, include_row: bool = False) -> Union[List[Union[dict, int]], None]:
         """
-        Check whether you're missing one number for bingo.
+        Check whether you're missing one number for bingo
+        If include_row == True return dict of row and missing value
         """
         missing_nums = []
         # If rows left in card + lines (how many rows for bingo (1, 2 or 3)) == 4 (3+1; 2+2; 1+3)
         if len(self.card.keys()) + self.lines == 4:
-            for value in self.card.values():
+            for key, value in self.card.items():
                 if len(value) == 1:
                     # Append the only number in the row and do so for all rows in card
-                    missing_nums.append(value[0])
+                    if include_row == True:
+                        missing_nums.append({key:value[0]})
+                    else:
+                        missing_nums.append(value[0])
 
         return missing_nums if missing_nums else None
 
@@ -149,6 +157,88 @@ class BingoCardDict(BingoCard):
         self.lines = current_line
 
 
+class BigBingoHolder:
+    """
+    Class to hold many BingoCards
+    """
+    def __init__(self, BingoCards: List[BingoCard], current_line: int = 1):
+        self.cards_list = BingoCards
+        self.lines = current_line
+
+    def __print__(self):
+        print({idx+1:card for idx, card in enumerate(self.cards_list)})
+
+    @classmethod
+    def make_from_dict(cls, dict_list: List[dict], current_line: int = 1):
+        return cls([BingoCardDict(i, current_line) for i in dict_list])
+
+    @classmethod
+    def make_cards(cls, file_or_text, current_line: int = 1):
+        """
+        Function to create bingo cards from either a file or text
+        Format should be (only accepts int):\n
+        no no no no no\n
+        no no no no no\n
+        no no no no no\n
+        \n
+        no ...
+        """
+        # return path.isfile(file_or_text)
+        if path.isfile(file_or_text):
+            with open(file_or_text, "r") as f:
+                parsed = [k.strip() for k in f.readlines()]
+        else:
+            parsed = [k.strip() for k in file_or_text.split("\n")]
+
+        card = []
+        cards = []
+        for line in parsed:
+            if len(line) == 0:
+                card = []
+                continue
+            card_line = [int(i) for i in line.split(" ")]
+            card.append(card_line)
+            if len(card) == 3:
+                cards.append(card)
+                card = []
+
+        return cls([BingoCard(i, current_line) for i in cards])
+
+    def set_current_line(self, line: int):
+        if line in range(1,4):
+            for card in self.cards_list:
+                card.set_current_line(line)
+            self.lines = line
+
+    def pop_list(self, number: int, one_index: int = 1) -> Tuple[List[str], List[str]]:
+        """
+        Use to keep track of bingo cards when you have many.
+        Ordered by the given list. Set one_index to 0 to get 0 index instead of 1.
+        """
+        # Try to pop values and return only the cards with popped values
+        pop_values = [card.pop_number(number) for card in self.cards_list]
+        removed_numbers = [f"{i[0]} {'' if i[0].endswith('all of') else 'in'} card {idx+one_index}" for idx, i in enumerate(pop_values) if i != None]
+        
+        missing = [f"Missing {'or '.join(str(k) for k in i[1])} in card {idx+one_index} for bingo" for idx,
+                i in enumerate(pop_values) if i != None and i[1] != None]
+
+        return removed_numbers, missing
+
+    def close_to_bingo(self, include_row: bool = False) -> List[dict]:
+        """
+        Returns a list of dictionaries where key is the card number and value is either list (if include_row == False)\n
+        or dict of list with key equal to the row which is close to bingo
+        """
+        close_list = []
+        for idx, i in enumerate(self.cards_list):
+            tmp = i.close_to_bingo(include_row)
+            if tmp is not None:
+                close_list.append({idx+1:tmp}) 
+        return close_list
+    
+    def get_card(self, card: int) -> BingoCard:
+        return self.cards_list[card-1]
+            
 def pop_list(number: int, list_of_BingoCard_objects: list, one_index: int = 1) -> Tuple[List[str], List[str]]:
     """
     Use to keep track of bingo cards when you have many.
