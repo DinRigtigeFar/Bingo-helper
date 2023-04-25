@@ -19,13 +19,17 @@
         <div class="column70">
             <div class="grid-container">
                 {% for i in range(1,91) %}
-                    <a href="/grid/{{i}}" class="btn-group button"><button class="block">{{i}}</button></a>
+                    {% if i in drawn_numbers %}
+                        <a class="btn-group-clicked button"><button class="block-clicked">{{i}}</button></a>
+                    {% else %}
+                        <a href="/grid/{{i}}" class="btn-group button"><button class="block">{{i}}</button></a>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
         <div class="column30">
             <p>{{ gettext("These are the drawn numbers:") }}</p>
-            <p>{{drawn_numbers}}</p>
+            <p>{{ drawn_numbers|join(', ') }}</p>
         </div>
     </div>
     <div class="outer">
