@@ -218,7 +218,7 @@ class BigBingoHolder:
         pop_values = [card.pop_number(number) for card in self.cards_list]
         removed_numbers = [f"{i[0]} {'' if i[0].endswith('all of') else 'in'} card {idx+one_index}" for idx, i in enumerate(pop_values) if i != None]
         
-        missing = [f"Missing {'or '.join(str(k) for k in i[1])} in card {idx+one_index} for bingo" for idx,
+        missing = [f"Missing {' or '.join(str(k) for k in i[1])} in card {idx+one_index} for bingo" for idx,
                 i in enumerate(pop_values) if i != None and i[1] != None]
 
         return removed_numbers, missing
