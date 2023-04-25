@@ -141,7 +141,6 @@ class BingoCard:
         # Return False or int
         return row_number
 
-
 class BingoCardDict(BingoCard):
     """
     A bingo card class to create a bingo card from a dict rather than from raw list.\n
@@ -236,8 +235,10 @@ class BigBingoHolder:
                 close_list.append({idx+1:tmp}) 
         return close_list
     
-    def get_card(self, card: int) -> BingoCard:
-        return self.cards_list[card-1]
+    def get_card(self, card_no: int = 0) -> BingoCard:
+        if card_no == 0:
+            return [i.card for i in self.cards_list]
+        return self.cards_list[card_no-1]
             
 def pop_list(number: int, list_of_BingoCard_objects: list, one_index: int = 1) -> Tuple[List[str], List[str]]:
     """
