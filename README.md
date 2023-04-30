@@ -24,8 +24,8 @@ The program will automatically check if you have it in your card(s) and display 
 <br>
 When the first line is done simply press the "2" button below the bingo number grid to tell the program that you're now required to have two full lines in order to get bingo (the same goes for 3 lines).
 <br>
-If you accidentally press the wrong number just press the "Undo" button to reinstate that number into your card(s)
+If you accidentally press the wrong number just press the "Undo" button to reinstate that number into your card(s).
 <br>
-When someone, hopefully you, has bingo on 3 lines, press the "Start over" button to begin fresh (all cards have all numbers and line is set to 1)
+When someone, hopefully you, has bingo on 3 lines, press the "Start over" button to begin fresh (all cards have all numbers and line is set to 1).
 <br>
 Happy bingo games!
