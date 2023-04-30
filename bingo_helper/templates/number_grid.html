@@ -6,6 +6,26 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
         <title>Bingo helper</title>
+        <script>
+            const origin = window.location.origin
+            document.addEventListener("DOMContentLoaded", function() {
+                const redo = document.querySelector("#redo")
+                const undo = document.querySelector("#undo")
+                redo.addEventListener('click', function() {
+                    const ans = confirm("Start over?")
+                    if (ans === true) {
+                        window.location = `${origin}/redo/True`;
+                    };
+                });
+                undo.addEventListener('click', function() {
+                    const ans = confirm("Undo last draw?")
+                    const test = {{drawn_numbers|safe}};
+                    if (ans === true) {
+                        window.location = `${origin}/undo/${test[0]}`;
+                    };
+                });
+            });
+        </script>
     </head>
     <body>
     {% if current_line %}
@@ -13,20 +33,45 @@
     {% endif %}
     <h1>{{ gettext("Let's play some bingo!") }}</h1>
     <h4><p>{{ gettext("Current line is") }} {{sesh}}</p></h4>
+    <button id="redo">Start over</button>
+    <button id="undo">Undo last draw</button>
     <p>{{ gettext("Press the button that corresponds to the drawn number:") }}</p>
     <!-- Create a grid of all bingo numbers -->
     <div class="row">
         <div class="column70">
             <div class="grid-container">
                 {% for i in range(1,91) %}
-                    <a href="/grid/{{i}}" class="btn-group button"><button class="block">{{i}}</button></a>
+                    {% if i in drawn_numbers %}
+                        <a class="btn-group-clicked button"><button class="block-clicked">{{i}}</button></a>
+                    {% else %}
+                        <a href="/grid/{{i}}" class="btn-group button"><button class="block">{{i}}</button></a>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
         <div class="column30">
             <p>{{ gettext("These are the drawn numbers:") }}</p>
-            <p>{{drawn_numbers}}</p>
+            <p>{{ drawn_numbers|join(', ') }}</p>
         </div>
+    </div>
+    <div class="row">
+        {% if check_close %}
+            <h3 style="white-space: pre-line">Missing number for bingo:</h3>
+        {% endif %}
+    </div>
+    <div class="row">
+        {% if check_close %}
+            {% for key, val in check_close.items() %}
+                {% if val | length==1 %}
+                    {{key}} in card {{val|join(', ')}}
+                {% elif val | length==2 %}
+                    {{key}} in cards {{val|join(' and ')}}
+                {% else %}
+                    {{key}} in cards {{val|join(', ')}}
+                {% endif %}
+                <br>
+            {% endfor %}
+        {% endif %}
     </div>
     <div class="outer">
         {% if missing %}

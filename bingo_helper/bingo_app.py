@@ -18,53 +18,69 @@ def get_locale():
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    # Initialize an empty list to store drawn numbers
+    session.clear()
     session['drawn_numbers'] = []
     return render_template('index.html')
 
 
-@app.route('/grid/', methods=['GET', 'POST'])
+@app.route('/grid/', methods=['POST'])
 def grid():
     """
     Parse the raw bingo cards and redirect to bingo number grid
     """
-
     if request.method == 'POST':
-        # This is generated from the index.html form
         raw_cards = request.form['raw_cards']
         if not raw_cards:
             return render_template('index.html', message='You should input some cards!')
-        # Parse the raw string into bingo cards
-        my_pre_cards = txt_to_card.make_cards(raw_cards)
-        my_cards = [txt_to_card.BingoCard(i) for i in my_pre_cards]
-        # Since we need the cards in the other views we create a session
-        session['my_cards'] = [i.card for i in my_cards]
-        # Also initialize a current_line session to be used for assembly later
-        session['current_line'] = my_cards[0].lines
-    return render_template('number_grid.html', message=session.get('my_cards'), sesh=session.get('current_line'))
+        
+        my_cards = txt_to_card.BigBingoHolder.make_cards(raw_cards)
+        
+        with open('og_cards.txt', 'w') as w:
+            w.writelines(raw_cards)
+        
+        session['my_cards'] = my_cards.get_card()
+        session['current_line'] = my_cards.lines
+        
+        return render_template('number_grid.html', message=session.get('my_cards'), sesh=session.get('current_line'), drawn_numbers=session.get('drawn_numbers'))
+    
+@app.route('/redo/<redo>', methods=['GET'])   
+def redo(redo: bool = False):
+    if request.method == "GET" and bool(redo) == True:
+        my_cards = txt_to_card.BigBingoHolder.make_cards("og_cards.txt")
+        
+        session['my_cards'] = my_cards.get_card()
+        session['current_line'] = my_cards.lines
+        session['drawn_numbers'] = []
+        
+        return render_template('number_grid.html', message=session.get('my_cards'), sesh=session.get('current_line'), drawn_numbers=session.get('drawn_numbers'))
 
+@app.route('/undo/<int:number>', methods=['GET'])   
+def undo(number):
+    if request.method == "GET":
+        my_cards = txt_to_card.BigBingoHolder.make_cards("og_cards.txt", session.get("current_line"))
+        drawn_numbers = session.get('drawn_numbers')
+        drawn_numbers.pop(drawn_numbers.index(number))
+        session["drawn_numbers"] = drawn_numbers
+        my_cards.pop_many(drawn_numbers)
+        session['my_cards'] = my_cards.get_card()
+        
+        return render_template('number_grid.html', message=[f"Undid drawing of number {number}"], sesh=session.get('current_line'), drawn_numbers=drawn_numbers)
 
 @app.route('/grid/<int:number>', methods=['GET'])
 def btn_click(number):
     """
     Do card.pop_number(number) on button click
     """
-    # Have a list of already drawn numbers to keep track
     if number not in session.get('drawn_numbers'):
         session['drawn_numbers'].insert(0, number)
-    # Make the drawn numbers sorted insted? Uncomment this
-    #session['drawn_numbers'].sort()
     current_line = session.get('current_line')
-    # Since sessions store objects as json we have to 'assemble' the BingoCard objects again
-    # We are using BingoCardDict since we create the object from a dict and not a list of lists
-    my_cards = [txt_to_card.BingoCardDict(
-        i, current_line) for i in session.get('my_cards')]
-    # Store the popped numbers in a message. Only numbers removed from our cards are stored here. Also if missing one for bingo
-    message, missing = txt_to_card.pop_list(number, my_cards)
-    # Now we 'disassemble' the BingoCardDict object into a dict and override the session with the updated cards
-    session['my_cards'] = [i.card for i in my_cards]
-
-    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=', '.join(str(i) for i in session.get('drawn_numbers')))
+    
+    my_cards = txt_to_card.BigBingoHolder.make_from_dict(session.get('my_cards'), current_line)
+    
+    message, missing = my_cards.pop_list(number)
+    
+    session['my_cards'] = my_cards.get_card()
+    return render_template('number_grid.html', message=message, missing=missing, sesh=current_line, drawn_numbers=session.get('drawn_numbers'), check_close=my_cards.close_to_bingo(combine=True))
 
 
 @app.route('/newline/<int:number>', methods=['GET'])
@@ -72,16 +88,11 @@ def change_line(number):
     """
     Change the lines on button click
     """
-
-    # We use the number from the click to set the current_line
     session['current_line'] = number
-
     line = gettext("Current line changed to")
-
-    # Render the number_grid template, but the message is different.
-    # This way when you click a number the btn_click view is called again.
-    return render_template('number_grid.html', current_line=f"{line} {number}", sesh=number, drawn_numbers=session.get('drawn_numbers'))
-
+    my_cards = txt_to_card.BigBingoHolder.make_from_dict(session.get('my_cards'), number)
+    
+    return render_template('number_grid.html', current_line=f"{line} {number}", sesh=number, drawn_numbers=session.get('drawn_numbers'), check_close=my_cards.close_to_bingo(combine=True))
 
 if __name__ == '__main__':
     app.run()
