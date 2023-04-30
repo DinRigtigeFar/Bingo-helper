@@ -95,6 +95,15 @@ class BingoCard:
 
         return None
 
+    def pop_many(self, numbers: List[int]):
+        """
+        Used to remove a list of drawn numbers from the card. Usefull for an undo event (misclicked number)
+        """
+        for value in self.card.values():
+            for number in numbers:
+                if number in value:
+                    value.pop(value.index(number))
+
     def check_bingo(self) -> bool:
         """
         Do I have bingo on the current line?
@@ -225,6 +234,14 @@ class BigBingoHolder:
 
         return removed_numbers, missing
 
+    def pop_many(self, numbers: List[int]):
+        """
+        Removes many numbers from all cards.\n
+        Usefull for undoing a misclick
+        """
+        for card in self.cards_list:
+            card.pop_many(numbers)
+
     def close_to_bingo(self, include_row: bool = False, combine: bool = False) -> List[dict]:
         """
         Returns a list of dictionaries where key is the card number and value is either list (if include_row == False)\n
@@ -242,7 +259,6 @@ class BigBingoHolder:
                 for key, value in i.items(): # key is card number and val is missing for bingo
                     for val in value:
                         combine_dict[val].append(key)
-            print(dict(sorted(combine_dict.items())))
             return dict(sorted(combine_dict.items()))
         return close_list
     
