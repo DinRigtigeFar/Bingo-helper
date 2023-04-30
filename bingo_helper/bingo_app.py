@@ -1,8 +1,8 @@
 from os import environ
 
 import txt_to_card
-from flask import (Flask, make_response, redirect, render_template, request,
-                   send_file, session, url_for)
+from flask import (Flask, render_template, request,
+                   session)
 from flask_babel import Babel, gettext
 
 app = Flask(__name__)
